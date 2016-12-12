@@ -48,7 +48,7 @@ end
 
 
 gemfile = ARGV[0]
-dir = File.dirname(gemfile)
+dir = ARGV[1] || File.dirname(gemfile)
 PATTERN = /^#*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*)["']/
 
 for_each_rubyfile_recursive(dir) do |filename|
