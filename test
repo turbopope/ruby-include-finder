@@ -49,7 +49,7 @@ end
 
 gemfile = ARGV[0]
 dir = File.dirname(gemfile)
-PATTERN = /(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*)["']/
+PATTERN = /^#*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*)["']/
 
 for_each_rubyfile_recursive(dir) do |filename|
   puts filename
