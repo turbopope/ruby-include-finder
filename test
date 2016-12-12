@@ -1,5 +1,7 @@
 #!/usr/bin/ruby
 
+require 'pp'
+
 # def loadpath
 #   result = Array.new
 #   $:.each do |path|
@@ -46,24 +48,33 @@ end
 # puts search_in_loadpath("json")
 # puts search_in_loadpath("json/common")
 
-
-gemfile = ARGV[0]
-dir = ARGV[1] || File.dirname(gemfile)
-PATTERN = /^#*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*)["']/
-
-for_each_rubyfile_recursive(dir) do |filename|
-  puts filename
+def analyze_file(filename, gemfile, depth, resolved)
+  return Hash.new unless File.extname(filename) == ".rb"
   File.open(filename) do |file|
     includes = file.grep(PATTERN)
     includes.each do |inc|
       match = PATTERN.match(inc)
       type = match['type'].strip.downcase
       inc = match['inc'].strip.downcase
+      next if resolved.has_key?(inc)
       # puts "    -  #{type} #{inc}"
       if type == 'require'
-        source_file = `ruby search #{gemfile} #{inc}`
-        puts "    - #{inc}: #{source_file}"
+        source_file = `ruby search #{gemfile} #{inc}`.strip
+        resolved.store(inc, source_file)
+        puts "#{(' ') * (depth * 4)}- #{inc}: #{source_file}"
+        resolved.merge(analyze_file(source_file, gemfile, depth + 1, resolved)) if source_file != ""
       end
     end
   end
+  return resolved
+end
+
+gemfile = ARGV[0]
+dir = ARGV[1] || File.dirname(gemfile)
+PATTERN = /^#*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*?)["']/
+
+for_each_rubyfile_recursive(dir) do |filename|
+  puts "- #{filename}"
+  resolved = analyze_file(filename, gemfile, 1, Hash.new)
+  pp resolved
 end
