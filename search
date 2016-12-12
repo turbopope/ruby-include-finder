@@ -1,0 +1,7 @@
+#!/usr/bin/ruby
+
+# Helper for injecting the load path searcher after setting the gemfile and installing the budndle
+gemfile = ARGV[0]
+dir = File.dirname(gemfile) + "/lib"
+inc = ARGV[1]
+puts `BUNDLE_GEMFILE=#{gemfile} bundle install > /dev/null && bundle exec ruby search_inject.rb #{dir} #{inc}`
