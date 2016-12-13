@@ -3,7 +3,6 @@ require 'set'
 
 class SendProcessor < Parser::AST::Processor
   def initialize
-    puts "initialize"
     @method_calls = Set.new
     super
   end

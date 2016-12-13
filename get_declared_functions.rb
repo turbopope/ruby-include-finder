@@ -37,6 +37,7 @@ def get_declared_functions(gemfile, filename)
     end
   end
   defs.each{|k, v| defs[k] = v.to_a} # Magical Functions and Where to Find Them
+  Kernel.methods.each{|m| defs[m.to_s] = ['kernel']}
   defs
 end
 
