@@ -1,10 +1,6 @@
 #!/usr/bin/ruby
 
 require 'pp'
-require 'set'
-require 'parser/current'
-require_relative('send_processor')
-require_relative('get_includes')
 require 'json'
 
 
@@ -19,21 +15,16 @@ end
 
 
 gemfile = ARGV[0]
-dir = ARGV[1] || File.dirname(gemfile)
+mainfile = ARGV[1]#File.dirname(gemfile)
+filename = ARGV[2]
 
-for_each_rubyfile_recursive(dir) do |filename|
   puts filename
   # pp declared_functions = get_declared_functions(filename, gemfile)
-  declared_functions = JSON.parse(`ruby get_declared_functions.rb #{gemfile} #{filename}`)
+  declared_functions = JSON.parse(`ruby get_declared_functions.rb #{gemfile} #{mainfile}`)
   puts "Methods declared in includes of #{filename}:"
   pp declared_functions
-  ast = Parser::CurrentRuby.parse(File.read(filename))
-  send_processor = SendProcessor.new
-  send_processor.process(ast)
-  puts "\nMethods called in #{filename}:"
-  pp method_calls = send_processor.method_calls
+  method_calls = JSON.parse(`ruby get_method_calls.rb #{filename}`)
   puts "\nMethod calls resolved:"
   method_calls.each do |method_call|
     puts "#{method_call} from [#{declared_functions[method_call].to_a.join(' or ')}]"
   end
-end
