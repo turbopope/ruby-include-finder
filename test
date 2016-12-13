@@ -2,6 +2,8 @@
 
 require 'pp'
 require 'json'
+require_relative 'get_declared_functions'
+require_relative 'get_method_calls'
 
 
 def for_each_rubyfile_recursive(root)
@@ -18,13 +20,13 @@ gemfile = ARGV[0]
 mainfile = ARGV[1]#File.dirname(gemfile)
 filename = ARGV[2]
 
-  puts filename
-  # pp declared_functions = get_declared_functions(filename, gemfile)
-  declared_functions = JSON.parse(`ruby get_declared_functions.rb #{gemfile} #{mainfile}`)
-  puts "Methods declared in includes of #{filename}:"
-  pp declared_functions
-  method_calls = JSON.parse(`ruby get_method_calls.rb #{filename}`)
-  puts "\nMethod calls resolved:"
-  method_calls.each do |method_call|
-    puts "#{method_call} from [#{declared_functions[method_call].to_a.join(' or ')}]"
-  end
+puts filename
+# pp declared_functions = get_declared_functions(filename, gemfile)
+declared_functions = get_declared_functions(gemfile, mainfile)
+puts "Methods declared in includes of #{filename}:"
+pp declared_functions
+method_calls = get_method_calls(filename)
+puts "\nMethod calls resolved:"
+method_calls.each do |method_call|
+  puts "#{method_call} from [#{declared_functions[method_call].to_a.join(' or ')}]"
+end

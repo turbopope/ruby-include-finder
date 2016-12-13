@@ -1,6 +1,7 @@
 #!/usr/bin/ruby
 
 require 'json'
+require_relative 'search'
 
 
 # Searches filename for all includes/requires and resolves them to absolute paths.
@@ -18,7 +19,7 @@ def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
       next if resolved.has_key?(inc)
       # puts "    -  #{type} #{inc}"
       if type == 'require'
-        source_file = `ruby search #{gemfile} #{inc}`.strip
+        source_file = search(gemfile, inc).strip
         puts "#{(' ') * (depth * 4)}- #{inc}: #{source_file}" unless depth == 0
         resolved.store(inc, source_file)
         resolved.merge(get_includes(source_file, gemfile, depth == 0 ? 0 : depth+1, resolved))
@@ -29,5 +30,5 @@ def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
 end
 
 if __FILE__ == $0 # Do not run when being included
-  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], 0).select{|k, v| v != ''})
+  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], 0))
 end

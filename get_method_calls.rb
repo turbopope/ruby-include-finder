@@ -2,7 +2,7 @@
 
 require 'parser/current'
 require 'json'
-require_relative('send_processor')
+require_relative 'send_processor'
 
 def get_method_calls(filename)
   ast = Parser::CurrentRuby.parse(File.read(filename))

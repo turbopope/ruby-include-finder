@@ -2,6 +2,7 @@
 
 require 'json'
 require 'set'
+require_relative 'get_includes'
 
 # Finds all methods that are defined in a given file
 DEF_PATTERN = /.*def\s+(self\.)?(?<name>[A-Za-z0-9_]+).*/#(\(.*\))?/
@@ -22,14 +23,13 @@ end
 # This means that you have to pass the Gemfile of the gem to which filename belongs
 def get_declared_functions(gemfile, filename)
   # puts "- #{filename}"
-  resolved = JSON.parse(`#{File.dirname(__FILE__)}/get_includes.rb #{gemfile} #{filename}`)
+  resolved = get_includes(gemfile, filename).select{|_, v| v != ''}
   # resolved = get_includes(ARGV[0], ARGV[1], 1).select{|k, v| v != ''}
 
-  # pp resolved
+  pp resolved
 
   defs = Hash.new()
   resolved.values.each do |lib|
-    # puts lib
     new_defs = get_defs(lib)
     new_defs.each do |d|
       defs[d] = Set.new unless defs.has_key?(d)
