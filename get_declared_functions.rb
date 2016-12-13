@@ -4,7 +4,7 @@ require 'json'
 require 'set'
 
 # Finds all methods that are defined in a given file
-DEF_PATTERN = /.*def\s+(self\.)?(?<name>[^\(]+).*/#(\(.*\))?/
+DEF_PATTERN = /.*def\s+(self\.)?(?<name>[A-Za-z0-9_]+).*/#(\(.*\))?/
 def get_defs(filename)
   result = Array.new
   File.open(filename) do |file|

@@ -6,7 +6,7 @@ require 'json'
 # Searches filename for all includes/requires and resolves them to absolute paths.
 # Resolutions are logged with depth*4 spaces indentation and are added to resolved.
 # Then recursively calls this method with more depth and merges these resolutions int resolved before returning it.
-INCLUDE_PATTERN = /[^#]*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>[A-Za-z0-9\/]+)["']/
+INCLUDE_PATTERN = /[^#]*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>[A-Za-z0-9_\-\/]+)["']/
 def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
   return Hash.new unless File.extname(filename) == ".rb"
   File.open(filename) do |file|
