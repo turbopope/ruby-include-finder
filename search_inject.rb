@@ -4,7 +4,8 @@ class IncludeNotFoundError < StandardError
 end
 
 def search(paths, inc)
-  inc += '.rb' if File.extname(inc) == ""
+  inc += '.rb' if File.extname(inc) == ''
+  return nil unless File.extname(inc) == '.rb'
   paths.each do |dir|
     path = "#{dir}/#{inc}"
     return path if File.exist?(path)
