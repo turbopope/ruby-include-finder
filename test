@@ -4,79 +4,15 @@ require 'pp'
 require 'set'
 require 'parser/current'
 require_relative('send_processor')
+require_relative('get_includes')
+require 'json'
 
-# def loadpath
-#   result = Array.new
-#   $:.each do |path|
-#     # ls = `ls -p #{path} 2>/dev/null`.split("\n")
-#     ls = `find "#{path}"`.split("\n")
-#     result += ls.select{|filename| !filename.end_with?('/')}.map{|filename| "#{path}#{filename}"}
-#   end
-#   result
-# end
-#
-# loadpath.each do |lib|
-#   puts "#{lib}"
-# end
-
-class IncludeNotFoundError < StandardError
-end
-
-def search_in_loadpath(inc)
-  inc += '.rb' if File.extname(inc) == ""
-  $:.each do |dir|
-    path = "#{dir}/#{inc}"
-    return path if File.exist?(path)
-  end
-  raise IncludeNotFoundError, "Loadpath does not include #{inc}"
-end
-
-def search_in_paths(paths, inc)
-  inc += '.rb' if File.extname(inc) == ""
-  paths.each do |dir|
-    path = "#{dir}/#{inc}"
-    return path if File.exist?(path)
-  end
-  raise IncludeNotFoundError, "Loadpath does not include #{inc}"
-end
 
 def for_each_rubyfile_recursive(root)
   directorylist = %x[find "#{root}" -name '*.rb'].split("\n")
   directorylist.each do |filename|
     yield(filename)
   end
-end
-
-# puts search_in_loadpath("zlib.so")
-# puts search_in_loadpath("json")
-# puts search_in_loadpath("json/common")
-
-# Searches filename for all includes/requires and resolves them to absolute paths.
-# Resolutions are logged with depth*4 spaces indentation and are added to resolved.
-# Then recursively calls this method with more depth and merges these resolutions int resolved before returning it.
-
-INCLUDE_PATTERN = /[^#]*(?<type>(require|include)(_relative)?)\s+\(?["'](?<inc>.*?)["']/
-def get_includes(filename, gemfile, depth, resolved)
-  return Hash.new unless File.extname(filename) == ".rb"
-  File.open(filename) do |file|
-    includes = file.grep(INCLUDE_PATTERN)
-    includes.each do |inc|
-      match = INCLUDE_PATTERN.match(inc)
-      type = match['type'].strip.downcase
-      inc = match['inc'].strip.downcase
-      next if resolved.has_key?(inc)
-      # puts "    -  #{type} #{inc}"
-      if type == 'require'
-        source_file = `ruby search #{gemfile} #{inc}`.strip
-        puts "#{(' ') * (depth * 4)}- #{inc}: #{source_file}"
-        if source_file != ""
-          resolved.store(inc, source_file)
-          resolved.merge(get_includes(source_file, gemfile, depth + 1, resolved))
-        end
-      end
-    end
-  end
-  return resolved
 end
 
 DEF_PATTERN = /.*def\s+(self\.)?(?<name>[^\(]+).*/#(\(.*\))?/
@@ -94,9 +30,10 @@ end
 
 def get_declared_functions(filename, gemfile)
   # puts "- #{filename}"
-  resolved = get_includes(filename, gemfile, 1, Hash.new)
+  resolved = JSON.parse(`#{File.dirname(__FILE__)}/get_includes.rb #{gemfile} #{filename}`)
+  # resolved = get_includes(ARGV[0], ARGV[1], 1).select{|k, v| v != ''}
 
-  # pp resolved
+  pp resolved
 
   defs = Hash.new()
   resolved.values.each do |lib|
