@@ -15,44 +15,16 @@ def for_each_rubyfile_recursive(root)
   end
 end
 
-DEF_PATTERN = /.*def\s+(self\.)?(?<name>[^\(]+).*/#(\(.*\))?/
-def get_defs(filename)
-  result = Array.new
-  File.open(filename) do |file|
-    file.grep(DEF_PATTERN).each do |d|
-      match = d.match(DEF_PATTERN)
-      puts "    - " + match['name']
-      result.push(match['name'])
-    end
-  end
-  result
-end
 
-def get_declared_functions(filename, gemfile)
-  # puts "- #{filename}"
-  resolved = JSON.parse(`#{File.dirname(__FILE__)}/get_includes.rb #{gemfile} #{filename}`)
-  # resolved = get_includes(ARGV[0], ARGV[1], 1).select{|k, v| v != ''}
 
-  pp resolved
-
-  defs = Hash.new()
-  resolved.values.each do |lib|
-    # puts lib
-    new_defs = get_defs(lib)
-    new_defs.each do |d|
-      defs[d] = Set.new unless defs.has_key?(d)
-      defs[d].add lib
-    end
-  end
-  defs # Magical Functions and Where to Find Them
-end
 
 gemfile = ARGV[0]
 dir = ARGV[1] || File.dirname(gemfile)
 
 for_each_rubyfile_recursive(dir) do |filename|
   puts filename
-  pp declared_functions = get_declared_functions(filename, gemfile)
+  # pp declared_functions = get_declared_functions(filename, gemfile)
+  pp declared_functions = JSON.parse(`ruby get_declared_functions.rb #{filename}, #{gemfile}`)
   ast = Parser::CurrentRuby.parse(File.read(filename))
   sendProcessor = SendProcessor.new
   sendProcessor.process(ast)
