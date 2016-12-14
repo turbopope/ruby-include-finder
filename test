@@ -23,6 +23,7 @@ filename = ARGV[2]
 puts filename
 # pp declared_functions = get_declared_functions(filename, gemfile)
 declared_functions = get_declared_functions(gemfile, mainfile)
+declared_functions.merge(get_declared_functions(gemfile, filename))
 puts "Methods declared in includes of #{filename}:"
 pp declared_functions
 method_calls = get_method_calls(filename)
