@@ -20,14 +20,11 @@ gemfile = ARGV[0]
 mainfile = ARGV[1]#File.dirname(gemfile)
 filename = ARGV[2]
 
-puts filename
-# pp declared_functions = get_declared_functions(filename, gemfile)
-declared_functions = get_declared_functions(gemfile, mainfile)
-declared_functions.merge(get_declared_functions(gemfile, filename))
+declared_functions = get_methods_in_file(gemfile, mainfile)
+declared_functions.merge!(get_methods_declared_in_file(gemfile, filename))
 puts "Methods declared in includes of #{filename}:"
-pp declared_functions
 method_calls = get_method_calls(filename)
-puts "\nMethod calls resolved:"
+puts "Method calls resolved:"
 method_calls.each do |method_call|
   puts "#{method_call} from [#{declared_functions[method_call].to_a.join(' or ')}]"
 end

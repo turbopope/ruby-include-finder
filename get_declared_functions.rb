@@ -18,15 +18,21 @@ def get_defs(filename)
   result
 end
 
-# Searches the files included in filename for method declarations
-# For this, it needs to resolve the includes to full paths, which is done by searching the loadpath defined by the given gemfile
-# This means that you have to pass the Gemfile of the gem to which filename belongs
-def get_declared_functions(gemfile, filename)
+def get_methods_in_module_or_class(mod)
+  # puts "mod= #{mod.to_s}"
+  result = Hash.new
+  mod.methods.each{|m| result[m.to_s] = [mod.to_s]}
+  mod.instance_methods.each{|m| result[m.to_s] = [mod.to_s]}
+  # puts result.to_json
+  result
+end
+
+def get_methods_declared_in_file(gemfile, filename)
   # puts "- #{filename}"
   resolved = get_includes(gemfile, filename).select{|_, v| v != ''}
   # resolved = get_includes(ARGV[0], ARGV[1], 1).select{|k, v| v != ''}
 
-  pp resolved
+  # pp resolved
 
   defs = Hash.new()
   resolved.values.each do |lib|
@@ -36,9 +42,20 @@ def get_declared_functions(gemfile, filename)
       defs[d].add lib
     end
   end
-  defs.each{|k, v| defs[k] = v.to_a} # Magical Functions and Where to Find Them
-  Kernel.methods.each{|m| defs[m.to_s] = ['kernel']}
+  defs.each{|k, v| defs[k] = v.to_a}
   defs
+end
+
+# Approximates which methods could be available to a given file
+# For this, it needs to resolve the includes of the file to full paths, which is done by searching the loadpath defined by the given gemfile
+# It also includes methods from Kernel modules like Kernel, Array and String
+# This means that you have to pass the Gemfile of the gem to which filename belongs
+def get_methods_in_file(gemfile, filename)
+  defs = get_methods_declared_in_file(gemfile, filename)
+  [Kernel, Array, Complex, Float, Hash, Integer, Rational, String, Object, Enumerable, Module, Class].each do |moc|
+    defs.merge!(get_methods_in_module_or_class(moc)){|_, existing, conflicting| existing + conflicting}
+  end
+  defs # Magical Functions and Where to Find Them
 end
 
 
