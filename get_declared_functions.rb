@@ -21,8 +21,16 @@ end
 def get_methods_in_module_or_class(mod)
   # puts "mod= #{mod.to_s}"
   result = Hash.new
-  mod.methods.each{|m| result[m.to_s] = [mod.to_s]}
-  mod.instance_methods.each{|m| result[m.to_s] = [mod.to_s]}
+  if mod.respond_to?(:methods)
+    mod.methods.each{|m| result[m.to_s] = [mod.to_s]}
+  else
+    puts "Warning: #{mod} does not respond to :methods"
+  end
+  if mod.respond_to?(:instance_methods)
+    mod.instance_methods.each{|m| result[m.to_s] = [mod.to_s]}
+  else
+    puts "Warning: #{mod} does not respond to :instance_methods"
+  end
   # puts result.to_json
   result
 end
@@ -52,7 +60,9 @@ end
 # This means that you have to pass the Gemfile of the gem to which filename belongs
 def get_methods_in_file(gemfile, filename)
   defs = get_methods_declared_in_file(gemfile, filename)
-  [Kernel, Array, Complex, Float, Hash, Integer, Rational, String, Object, Enumerable, Module, Class].each do |moc|
+  # classmods = [Kernel, Array, Complex, Float, Hash, Integer, Rational, String, Object, Enumerable, Module, Class]
+  classmods = eval(File.read("ClassMods.rb").strip)
+  classmods.each do |moc|
     defs.merge!(get_methods_in_module_or_class(moc)){|_, existing, conflicting| existing + conflicting}
   end
   defs # Magical Functions and Where to Find Them

@@ -26,5 +26,6 @@ puts "Methods declared in includes of #{filename}:"
 method_calls = get_method_calls(filename)
 puts "Method calls resolved:"
 method_calls.each do |method_call|
-  puts "#{method_call} from [#{declared_functions[method_call].to_a.join(' or ')}]"
+  location = declared_functions[method_call].length > 3 ? "..." : declared_functions[method_call].to_a.join(' or ') if declared_functions[method_call]
+  puts "#{method_call} from [#{location}]"
 end
