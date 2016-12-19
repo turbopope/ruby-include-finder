@@ -14,6 +14,7 @@ def for_each_rubyfile_recursive(root)
 end
 
 def print_hash_justified(h)
+  return if h.empty?
   max_length = h.keys.max_by(&:length).length
   h.each {|k,v| puts sprintf("%<key>#{max_length}s %<value>s",{key:k,value:v}) }
 end
