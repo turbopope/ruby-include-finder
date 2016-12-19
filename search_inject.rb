@@ -10,7 +10,7 @@ def search(paths, inc)
     path = "#{dir}/#{inc}"
     return path if File.exist?(path)
   end
-  return nil#raise IncludeNotFoundError, "Loadpath does not include #{inc}"
+  return raise IncludeNotFoundError, "Loadpath does not include #{inc}"
 end
 
 puts search($:+[ARGV[0]], ARGV[1])
