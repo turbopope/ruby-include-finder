@@ -49,7 +49,7 @@ exit if __FILE__ != $0
 
 gemfile = ARGV[0]
 mainfile = ARGV[1]#File.dirname(gemfile)
-recursive = ARGV[3] == '-r'
+recursive = File.directory?(ARGV[2])
 
 if recursive
   root = ARGV[2]
