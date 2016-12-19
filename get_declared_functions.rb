@@ -3,6 +3,7 @@
 require 'json'
 require 'set'
 require_relative 'get_includes'
+require_relative 'for_each_rubyfile_recursive'
 
 # Finds all methods that are defined in a given file
 DEF_PATTERN = /.*def\s+(self\.)?(?<name>[A-Za-z0-9_]+).*/#(\(.*\))?/
@@ -44,10 +45,14 @@ def get_methods_declared_in_file(gemfile, filename)
 
   defs = Hash.new()
   resolved.values.each do |lib|
-    new_defs = get_defs(lib)
-    new_defs.each do |d|
-      defs[d] = Set.new unless defs.has_key?(d)
-      defs[d].add lib
+    for_each_rubyfile_recursive(File.dirname(lib)) do |rubyfile|
+      # puts "#{rubyfile}"
+      new_defs = get_defs(rubyfile)
+      new_defs.each do |d|
+        # puts "    - #{d}"
+        defs[d] = Set.new unless defs.has_key?(d)
+        defs[d].add rubyfile
+      end
     end
   end
   defs.each{|k, v| defs[k] = v.to_a}

@@ -4,14 +4,9 @@ require 'pp'
 require 'json'
 require_relative 'get_declared_functions'
 require_relative 'get_method_calls'
+require_relative 'for_each_rubyfile_recursive'
 
 
-def for_each_rubyfile_recursive(root)
-  directorylist = %x[find "#{root}" -name '*.rb'].split("\n")
-  directorylist.each do |filename|
-    yield(filename)
-  end
-end
 
 def print_hash_justified(h)
   return if h.empty?
