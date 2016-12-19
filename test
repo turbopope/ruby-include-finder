@@ -24,7 +24,10 @@ def analyze_file(declared_functions, filename)
   puts "\n#{filename}"
   result = Hash.new
   method_calls.each do |method_call|
-    location = declared_functions[method_call].length > 3 ? "..." : declared_functions[method_call].to_a.join(' or ') if declared_functions[method_call]
+    if declared_functions[method_call]
+      l = declared_functions[method_call].length
+      location = l > 3 ? l : declared_functions[method_call].to_a.join(' or ')
+    end
     # puts "    #{method_call} from [#{location}]"
     result[method_call] = "[#{location}]"
   end
