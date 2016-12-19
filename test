@@ -13,13 +13,21 @@ def for_each_rubyfile_recursive(root)
   end
 end
 
+def print_hash_justified(h)
+  max_length = h.keys.max_by(&:length).length
+  h.each {|k,v| puts sprintf("%<key>#{max_length}s %<value>s",{key:k,value:v}) }
+end
+
 def analyze_file(declared_functions, filename)
   method_calls = get_method_calls(filename)
   puts "\n#{filename}"
+  result = Hash.new
   method_calls.each do |method_call|
     location = declared_functions[method_call].length > 3 ? "..." : declared_functions[method_call].to_a.join(' or ') if declared_functions[method_call]
-    puts "    #{method_call} from [#{location}]"
+    # puts "    #{method_call} from [#{location}]"
+    result[method_call] = "[#{location}]"
   end
+  print_hash_justified result
 end
 
 def analyze(gemfile, mainfile, filename)
