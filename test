@@ -40,7 +40,7 @@ def analyze_all(gemfile, mainfile, root)
   declared_functions = get_methods_in_file(gemfile, mainfile)
 
   for_each_rubyfile_recursive(root) do |filename|
-    declared_functions.merge!(get_methods_declared_in_file(gemfile, filename))
+    get_defs(filename).each{|d| declared_functions.store(d, filename)}
     analyze_file(declared_functions, filename)
   end
 end
