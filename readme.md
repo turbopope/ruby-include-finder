@@ -79,3 +79,36 @@ The same is true for aliasing the kernel `require` as in:
 alias require grab_lib
 grab_lib 'json'
 ```
+
+
+### Dynamic Method Declaration
+
+Again, Faraday thwarts our plans with dynamic declaration of methods:
+
+```Ruby
+%w[get head delete].each do |method|
+  class_eval <<-RUBY, __FILE__, __LINE__ + 1
+    def #{method}(url = nil, params = nil, headers = nil)
+      run_request(:#{method}, url, nil, headers) { |request|
+        request.params.update(params) if params
+        yield(request) if block_given?
+      }
+    end
+  RUBY
+end
+```
+
+Which can be simplified to:
+
+```Ruby
+method_name = "test"
+eval <<-RUBY
+  def #{method_name}
+    puts "hello!"
+  end
+RUBY
+
+test # => "hello!"
+```
+
+The problem here is that we would have to execute the code to find out that there is a function called `test`. Even if we were to grep for dynamic definitions like these, we could not know the name of the method getting declared without further interpretatin.
