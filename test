@@ -36,7 +36,7 @@ end
 
 def analyze(gemfile, mainfile, filename)
   declared_functions = get_methods_in_file(gemfile, mainfile)
-  declared_functions.merge!(get_methods_declared_in_file(gemfile, filename))
+  get_defs(filename).each{|d| declared_functions.store(d, [filename])}
   analyze_file(declared_functions, filename)
 end
 
