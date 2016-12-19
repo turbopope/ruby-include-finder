@@ -13,19 +13,22 @@ def for_each_rubyfile_recursive(root)
   end
 end
 
+def analyze(gemfile, mainfile, filename)
+  declared_functions = get_methods_in_file(gemfile, mainfile)
+  declared_functions.merge!(get_methods_declared_in_file(gemfile, filename))
+  method_calls = get_method_calls(filename)
+  puts
+  method_calls.each do |method_call|
+    location = declared_functions[method_call].length > 3 ? "..." : declared_functions[method_call].to_a.join(' or ') if declared_functions[method_call]
+    puts "#{method_call} from [#{location}]"
+  end
+end
 
 
+exit if __FILE__ != $0
 
 gemfile = ARGV[0]
 mainfile = ARGV[1]#File.dirname(gemfile)
 filename = ARGV[2]
 
-declared_functions = get_methods_in_file(gemfile, mainfile)
-declared_functions.merge!(get_methods_declared_in_file(gemfile, filename))
-puts "Methods declared in includes of #{filename}:"
-method_calls = get_method_calls(filename)
-puts "Method calls resolved:"
-method_calls.each do |method_call|
-  location = declared_functions[method_call].length > 3 ? "..." : declared_functions[method_call].to_a.join(' or ') if declared_functions[method_call]
-  puts "#{method_call} from [#{location}]"
-end
+analyze(gemfile, mainfile, filename)
