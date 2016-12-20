@@ -22,7 +22,8 @@ def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
         source_file = search(gemfile, inc).strip
         puts "#{(' ') * (depth * 4)}- #{inc}: #{source_file}" unless depth == 0
         resolved.store(inc, source_file)
-        resolved.merge(get_includes(source_file, gemfile, depth == 0 ? 0 : depth+1, resolved))
+        subincludes = get_includes(gemfile, source_file, depth == 0 ? 1 : depth+1, resolved)
+        resolved.merge!(subincludes)
       end
     end
   end
@@ -30,5 +31,5 @@ def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
 end
 
 if __FILE__ == $0 # Do not run when being included
-  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], 0))
+  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], 1))
 end
