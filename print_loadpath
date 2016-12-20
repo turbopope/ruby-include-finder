@@ -1,5 +1,0 @@
-#!/usr/bin/ruby
-
-$:.each do |dir|
-  puts "#{dir}"
-end
