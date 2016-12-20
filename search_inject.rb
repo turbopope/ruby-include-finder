@@ -1,8 +1,4 @@
 # Searches for an include in the current load path (plus one additional path)
-
-class IncludeNotFoundError < StandardError
-end
-
 def search(paths, inc)
   inc += '.rb' if File.extname(inc) == ''
   return nil unless File.extname(inc) == '.rb'
@@ -10,7 +6,7 @@ def search(paths, inc)
     path = "#{dir}/#{inc}"
     return path if File.exist?(path)
   end
-  return raise IncludeNotFoundError, "Loadpath does not include #{inc}"
+  return ''
 end
 
 puts search($:+[ARGV[0]], ARGV[1])
