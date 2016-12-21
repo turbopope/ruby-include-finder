@@ -37,5 +37,5 @@ def get_includes(gemfile, filename, depth=0, resolved=Hash.new)
 end
 
 if __FILE__ == $0 # Do not run when being included
-  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], 0))
+  puts JSON.pretty_generate(get_includes(ARGV[0], ARGV[1], ARGV[2] ? 1 : 0))
 end
