@@ -47,14 +47,27 @@ end
 
 exit if __FILE__ != $0
 
-gemfile = ARGV[0]
-mainfile = ARGV[1]#File.dirname(gemfile)
-recursive = File.directory?(ARGV[2])
-
-if recursive
-  root = ARGV[2]
+if ARGV.length == 1
+  # Selects input files based on .gemspec and conventions
+  repo = ARGV[0]
+  repo += '/' unless repo.end_with?('/')
+  require 'rubygems'
+  spec = Gem::Specification::load("#{repo}.gemspec")
+  mainfile = "#{repo}#{spec.files[0]}"
+  gemfile = "#{repo}Gemfile"
+  root = "#{repo}lib"
   analyze_all(gemfile, mainfile, root)
 else
-  filename = ARGV[2]
-  analyze(gemfile, mainfile, filename)
+  # Manual specification of files through command line arguments
+  gemfile = ARGV[0]
+  mainfile = ARGV[1]#File.dirname(gemfile)
+  recursive = File.directory?(ARGV[2])
+
+  if recursive
+    root = ARGV[2]
+    analyze_all(gemfile, mainfile, root)
+  else
+    filename = ARGV[2]
+    analyze(gemfile, mainfile, filename)
+  end
 end
