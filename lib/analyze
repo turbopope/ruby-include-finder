@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 require 'pp'
 require 'json'
 require_relative 'get_declared_functions'

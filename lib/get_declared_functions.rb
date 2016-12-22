@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 require 'json'
 require 'set'
 require_relative 'get_includes'

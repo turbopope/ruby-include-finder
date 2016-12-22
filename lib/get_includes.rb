@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 require 'json'
 require_relative 'search'
 require_relative 'IncludeNotFoundError'

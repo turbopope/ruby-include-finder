@@ -1,5 +1,3 @@
-#!/usr/bin/ruby
-
 require 'parser/current'
 require 'json'
 require_relative 'send_processor'
