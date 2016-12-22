@@ -66,7 +66,7 @@ end
 def get_methods_in_file(gemfile, filename)
   defs = get_methods_declared_in_file(gemfile, filename)
   # classmods = [Kernel, Array, Complex, Float, Hash, Integer, Rational, String, Object, Enumerable, Module, Class]
-  classmods = eval(File.read("ClassMods.rb").strip)
+  classmods = eval(File.read("#{File.dirname(__FILE__)}/ClassMods.rb").strip)
   classmods.each do |moc|
     defs.merge!(get_methods_in_module_or_class(moc)){|_, existing, conflicting| existing + conflicting}
   end
