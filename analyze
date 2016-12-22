@@ -1,0 +1,2 @@
+#!/usr/bin/ruby
+exec "/usr/bin/bundle exec /usr/bin/ruby lib/analyze.rb #{ARGV.join(' ')}"
