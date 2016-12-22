@@ -75,5 +75,5 @@ end
 
 
 if __FILE__ == $0
-  puts JSON.pretty_generate(get_declared_functions(ARGV[0], ARGV[1]))
+  puts JSON.pretty_generate(get_methods_in_file(ARGV[0], ARGV[1]))
 end
