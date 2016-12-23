@@ -7,7 +7,7 @@ require_relative 'tabelize'
 
 
 
-def analyze_file(declared_functions, filename)
+def get_method_calls_with_sources(declared_functions, filename)
   method_calls = get_method_calls(filename)
   puts "\n#{filename}"
   result = Array.new([])
@@ -18,50 +18,41 @@ def analyze_file(declared_functions, filename)
       l = declared_functions[method_name].length
       source_file = l > 3 ? l : declared_functions[method_name].to_a.join(' or ')
     end
-    result.push [line, method_name, source_file]
+    result.push({line: line, method_name: method_name, source_file: source_file})
   end
-  tabelize result
+
+  result
 end
 
-def analyze(gemfile, mainfile, filename)
-  declared_functions = get_methods_in_file(gemfile, mainfile)
-  get_defs(filename).each{|d| declared_functions.store(d, [filename])}
-  analyze_file(declared_functions, filename)
-end
-
-def analyze_all(gemfile, mainfile, root)
+def analyze_all(repo, gemfile, mainfile, root)
   declared_functions = get_methods_in_file(gemfile, mainfile)
 
   for_each_rubyfile_recursive(root) do |filename|
     get_defs(filename).each{|d| declared_functions.store(d, [filename])}
-    analyze_file(declared_functions, filename)
+    lms = get_method_calls_with_sources(declared_functions, filename)
+
+    lms.each do |method_call|
+      author = 'unknown'
+      line = method_call[:line]
+      Dir.chdir(repo) do
+        author = `git blame -p -L #{line},#{line} #{filename.gsub(repo, '')}`.split("\n").grep(/author\ /)[0].split(' ')[1]
+      end
+
+      method_call[:author] = author
+    end
+
+    tabelize lms
   end
 end
 
 
 exit if __FILE__ != $0
 
-if ARGV.length == 1
-  # Selects input files based on .gemspec and conventions
-  repo = ARGV[0]
-  repo += '/' unless repo.end_with?('/')
-  require 'rubygems'
-  spec = Gem::Specification::load("#{repo}.gemspec")
-  mainfile = "#{repo}#{spec.files[0]}"
-  gemfile = "#{repo}Gemfile"
-  root = "#{repo}lib"
-  analyze_all(gemfile, mainfile, root)
-else
-  # Manual specification of files through command line arguments
-  gemfile = ARGV[0]
-  mainfile = ARGV[1]#File.dirname(gemfile)
-  recursive = File.directory?(ARGV[2])
-
-  if recursive
-    root = ARGV[2]
-    analyze_all(gemfile, mainfile, root)
-  else
-    filename = ARGV[2]
-    analyze(gemfile, mainfile, filename)
-  end
-end
+repo = ARGV[0]
+repo += '/' unless repo.end_with?('/')
+require 'rubygems'
+spec = Gem::Specification::load("#{repo}.gemspec")
+mainfile = "#{repo}#{spec.files[0]}"
+gemfile = "#{repo}Gemfile"
+root = "#{repo}lib"
+analyze_all(repo, gemfile, mainfile, root)

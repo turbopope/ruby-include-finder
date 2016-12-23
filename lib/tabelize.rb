@@ -1,6 +1,6 @@
 def tabelize(aa)
   format = '%-20s' * aa[0].length
   aa.each do |a|
-    puts format % a
+    puts format % a.values
   end
 end
