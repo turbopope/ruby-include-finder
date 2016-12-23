@@ -3,28 +3,24 @@ require 'json'
 require_relative 'get_declared_functions'
 require_relative 'get_method_calls'
 require_relative 'for_each_rubyfile_recursive'
+require_relative 'tabelize'
 
 
-
-def print_hash_justified(h)
-  return if h.empty?
-  max_length = h.keys.max_by(&:length).length
-  h.each {|k,v| puts sprintf("%<key>#{max_length}s %<value>s",{key:k,value:v}) }
-end
 
 def analyze_file(declared_functions, filename)
   method_calls = get_method_calls(filename)
   puts "\n#{filename}"
-  result = Hash.new
+  result = Array.new([])
   method_calls.each do |method_call|
-    if declared_functions[method_call]
-      l = declared_functions[method_call].length
-      location = l > 3 ? l : declared_functions[method_call].to_a.join(' or ')
+    method_name = method_call[:method_name]
+    line = method_call[:line]
+    if declared_functions[method_name]
+      l = declared_functions[method_name].length
+      source_file = l > 3 ? l : declared_functions[method_name].to_a.join(' or ')
     end
-    # puts "    #{method_call} from [#{location}]"
-    result[method_call] = "[#{location}]"
+    result.push [line, method_name, source_file]
   end
-  print_hash_justified result
+  tabelize result
 end
 
 def analyze(gemfile, mainfile, filename)
