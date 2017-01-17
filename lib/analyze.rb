@@ -1,3 +1,22 @@
+if ARGV[0] == "-h" || ARGV[0] == "--help" || ARGV.length == 0 && __FILE__ == $0
+  puts <<~HEREDOC
+    Analyze a Local Gem Repo.
+
+    Useage:  ./analyze REPO [MAINFILE [GEMFILE [ROOT]]]
+    REPO:     Path to the repo
+    MAINFILE: Starting point for loading the Gem. Usually "lib/GEMNAME"
+    GEMFILE:  The repo's Gemfile (defaults to "Gemfile")
+    ROOT:     The root directory from which all *.rb files will be analyzed
+              (defaults to "lib/")
+
+    The latter three parameters must be relative to the repo.
+    Example: `./analyze path/to/supergem lib/supergem.rb Gemfile lib/`
+  HEREDOC
+  exit
+end
+
+
+
 require 'pp'
 require 'json'
 require_relative 'get_declared_functions'
@@ -46,13 +65,40 @@ def analyze_all(repo, gemfile, mainfile, root)
 end
 
 
-exit if __FILE__ != $0
+exit unless __FILE__ == $0
+
+if ARGV.length == 0
+  puts <<~HEREDOC
+    Analyze a Local Gem Repo.
+
+    Useage:  ./analyze REPO [MAINFILE [GEMFILE [ROOT]]]
+    REPO:     Path to the repo
+    MAINFILE: Starting point for loading the Gem. Usually "lib/GEMNAME"
+    GEMFILE:  The repo's Gemfile (defaults to "Gemfile")
+    ROOT:     The root directory from which all *.rb files will be analyzed
+              (defaults to "lib/")
+
+    The latter three parameters must be relative to the repo.
+    Example: `./analyze path/to/supergem lib/supergem.rb Gemfile lib/`
+  HEREDOC
+  exit
+end
 
 repo = ARGV[0]
 repo += '/' unless repo.end_with?('/')
-require 'rubygems'
-spec = Gem::Specification::load("#{repo}.gemspec")
-mainfile = "#{repo}#{spec.files[0]}"
-gemfile = "#{repo}Gemfile"
-root = "#{repo}lib"
+if ARGV.length > 1
+  require 'rubygems'
+  spec = Gem::Specification::load("#{repo}.gemspec")
+  mainfile = "#{repo}#{spec.files[0]}"
+  gemfile  = "#{repo}Gemfile"
+  root     = "#{repo}lib"
+else ARGV.length == 1
+  mainfile = "#{repo}#{ARGV[1]}"
+  gemfile  = "#{repo}#{ARGV[2] ||= "Gemfile"}"
+  root     = "#{repo}#{ARGV[3] ||= "lib"}"
+end
+
+puts "#{File.exist?(mainfile) ? "✓" : "✗"} mainfile: #{mainfile}"
+puts "#{File.exist?(gemfile)  ? "✓" : "✗"} gemfile:  #{gemfile}"
+puts "#{File.exist?(root)     ? "✓" : "✗"} root:     #{root}"
 analyze_all(repo, gemfile, mainfile, root)
