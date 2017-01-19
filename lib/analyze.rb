@@ -67,22 +67,6 @@ end
 
 exit unless __FILE__ == $0
 
-if ARGV.length == 0
-  puts <<~HEREDOC
-    Analyze a Local Gem Repo.
-
-    Useage:  ./analyze REPO [MAINFILE [GEMFILE [ROOT]]]
-    REPO:     Path to the repo
-    MAINFILE: Starting point for loading the Gem. Usually "lib/GEMNAME"
-    GEMFILE:  The repo's Gemfile (defaults to "Gemfile")
-    ROOT:     The root directory from which all *.rb files will be analyzed
-              (defaults to "lib/")
-
-    The latter three parameters must be relative to the repo.
-    Example: `./analyze path/to/supergem lib/supergem.rb Gemfile lib/`
-  HEREDOC
-  exit
-end
 
 repo = ARGV[0]
 repo += '/' unless repo.end_with?('/')
